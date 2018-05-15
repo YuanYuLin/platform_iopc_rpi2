@@ -4,27 +4,27 @@ import iopc
 pkg_path = ""
 output_dir = ""
 arch = ""
-src_lib_dir = ""
-dst_lib_dir = ""
+output_platform_dir = ""
+src_image_cfg = ""
+dao_file = "dao.ini"
+dao_script = "dao.py"
 pkg_tarball = "firmware.tar.xz"
-pkg_sysroot_tarball = ""
 pkg_tarball_dir = "firmware"
-pkg_sysroot_tarball_dir = ""
 
 def set_global(args):
     global pkg_path
     global output_dir
     global arch
-    global src_lib_dir
-    global dst_lib_dir
+    global src_image_cfg
+    global output_platform_dir
     global pkg_tarball
-    global pkg_sysroot_tarball
     global pkg_tarball_dir
-    global pkg_sysroot_tarball_dir
 
     pkg_path = args["pkg_path"]
     output_dir = args["output_path"]
     arch = ops.getEnv("ARCH_ALT")
+    src_image_cfg = ops.path_join(pkg_path, dao_file)
+    output_platform_dir = ops.path_join(iopc.getOutputRootDir(), "platform")
     pkg_tarball = ops.path_join(pkg_path, pkg_tarball)
     pkg_tarball_dir = ops.path_join(output_dir, pkg_tarball_dir)
 
@@ -35,6 +35,11 @@ def MAIN_ENV(args):
 
 def MAIN_EXTRACT(args):
     set_global(args)
+
+    ops.mkdir(output_platform_dir)
+    ops.copyto(src_image_cfg, ops.path_join(output_platform_dir, dao_file))
+    ops.copyto(ops.path_join(pkg_path, dao_script), output_dir)
+    ops.copyto(ops.path_join(pkg_path, dao_file), output_dir)
 
     ops.unTarXz(pkg_tarball, output_dir)
 
@@ -57,12 +62,17 @@ def MAIN_CONFIGURE(args):
 def MAIN_BUILD(args):
     set_global(args)
 
-    return True
+    CMD=['python', dao_script, dao_file]
+    ops.execCmd(CMD, output_dir, False)
+
+    return False
 
 def MAIN_INSTALL(args):
     set_global(args)
 
     #iopc.installBin(args["pkg_name"], ops.path_join(dst_usr_lib_dir, "."), "usr/lib")
+    ops.copyto(ops.path_join(output_dir, 'db_init.bin'), iopc.getOutputRootDir())
+    #iopc.installBin(args["pkg_name"], ops.path_join(output_dir, "db_init.inc"), dst_include_dir)
 
     return False
 

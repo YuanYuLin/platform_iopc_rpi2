@@ -1,0 +1,9 @@
+{
+"table_type":"gpt",
+"parts":["part_dao1", "part1", "part2"],
+"part_dao"	:{"boot":0, "fstype":"iopcdao", "start":"1048576B", "end":"1572863B", "bin_files":["db_init.bin"]},
+"part1"		:{"boot":1, "fstype":"fat32", "start":"2097152B", "end":"52428799B", "bin_files":["linux_image", "kmod.squashfs", "rootfs.squashfs", "db_init.bin"]},
+"part2"		:{"boot":0, "fstype":"ext4", "start":"52428800B", "end":"-1s", "bin_files":[]},
+"platform":"RPI2",
+"platform_id":0
+}
